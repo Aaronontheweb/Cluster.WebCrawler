@@ -21,6 +21,13 @@ namespace WebCrawler.Shared.IO
     /// </summary>
     public class DownloadCoordinator : ReceiveActor
     {
+        private class ProcessAck
+        {
+            // make singleton
+            public static readonly ProcessAck Instance = new ProcessAck();
+            private ProcessAck(){}
+        }
+        
         private const int DefaultMaxConcurrentDownloads = 50;
         protected readonly IActorRef Commander;
         protected readonly IActorRef DownloadsTracker;
@@ -46,9 +53,9 @@ namespace WebCrawler.Shared.IO
             MaxConcurrentDownloads = maxConcurrentDownloads;
             Commander = commander;
             Stats = new CrawlJobStats(Job);
-            var selfHtmlSink = Sink.ActorRef<CheckDocuments>(Self, StreamCompleteTick.Instance);
-            var selfDocSink = Sink.ActorRef<CompletedDocument>(Self, StreamCompleteTick.Instance);
-            var selfImgSink = Sink.ActorRef<CompletedDocument>(Self, StreamCompleteTick.Instance);
+            var selfHtmlSink = Sink.ActorRef<CheckDocuments>(Self, StreamCompleteTick.Instance, ex => new Status.Failure(ex));
+            var selfDocSink = Sink.ActorRef<CompletedDocument>(Self, StreamCompleteTick.Instance, ex => new Status.Failure(ex));
+            var selfImgSink = Sink.ActorRef<CompletedDocument>(Self, StreamCompleteTick.Instance, ex => new Status.Failure(ex));
             var htmlFlow = Flow.Create<CrawlDocument>().Via(DownloadFlow.SelectDocType())
                 .Throttle(30, TimeSpan.FromSeconds(5), 100, ThrottleMode.Shaping)
                 .Via(DownloadFlow.ProcessHtmlDownloadFor(DefaultMaxConcurrentDownloads, HttpClientFactory.GetClient()));

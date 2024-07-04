@@ -205,7 +205,7 @@ petabridge.cmd {{
             
             builder.WithAkkaManagement(setup =>
             {
-                setup.Http.HostName = "";
+                setup.Http.HostName = ""; // 0.0.0.0
                 setup.Http.Port = 8558;
             });
                 
@@ -222,7 +222,7 @@ petabridge.cmd {{
                 .WithKubernetesDiscovery(opt =>
                 {
                     opt.PodNamespace = options.Discovery.ServiceName;
-                    opt.PodLabelSelector = "cluster={0}";
+                    opt.PodLabelSelector = "cluster=webcrawler";
                 })
                 .AddHocon(KubernetesDiscovery.DefaultConfiguration(), HoconAddMode.Append);
             

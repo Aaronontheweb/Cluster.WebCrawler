@@ -39,7 +39,7 @@ namespace WebCrawler.Web.Actors
                     {
                         var grrr =
                             new SignalRActor.DebugCluster(
-                                $"{CommandRouter} has {tr.Result.Members.Count()} routees: {string.Join(",", tr.Result.Members.Select(y => y.ToString()))}");
+                                $"{CommandRouter} has {tr.Result.Members.Count()} routees: {string.Join(",", tr.Result.Members.Select(y => ((ActorSelectionRoutee)y).Selection.PathString))}");
 
                         return grrr;
                     }).PipeTo(sender);
